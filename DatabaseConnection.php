@@ -1,9 +1,9 @@
-<?php
+<?php namespace HAEDev\Utils;
 
 /**
  * PDO wrapper
  */
-class DatabaseConnection extends PDO {
+class DatabaseConnection extends \PDO {
     /**
      * @param string $dbname
      * @param string $dbuser
@@ -25,11 +25,11 @@ class DatabaseConnection extends PDO {
             $dbuser,
             $dbpass,
             [
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"
+                \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"
             ]
         );
         
-        $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->useBufferedQuery(true);
     }
         
@@ -45,7 +45,7 @@ class DatabaseConnection extends PDO {
         $output = [];
         $stmt = $this->createStatement($query, $values);
         if ($stmt->execute()) {
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                 $value = is_callable($callback)? $callback($row) : $row;
                 if (!is_null($value)) {
                     $output[] = $value;
@@ -76,7 +76,7 @@ class DatabaseConnection extends PDO {
      * @return bool
      */
     public function useBufferedQuery($status) {
-        return $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $status);
+        return $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $status);
     }
     
     /**
@@ -142,9 +142,9 @@ class DatabaseConnection extends PDO {
         }
 
         if (is_int($value)) {
-            $stmt->bindValue($param, $value, PDO::PARAM_INT);
+            $stmt->bindValue($param, $value, \PDO::PARAM_INT);
         } else if (is_bool($value)) {
-            $stmt->bindValue($param, $value, PDO::PARAM_BOOL);
+            $stmt->bindValue($param, $value, \PDO::PARAM_BOOL);
         } else {
             $stmt->bindValue($param, $value);
         }
