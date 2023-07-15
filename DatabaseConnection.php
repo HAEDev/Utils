@@ -1,16 +1,20 @@
-<?php namespace HAEDev\Utils;
+<?php
+
+namespace HAEDev\Utils;
 
 /**
  * PDO wrapper
  */
-class DatabaseConnection extends \PDO {
+class DatabaseConnection extends \PDO
+{
     /**
      * @param string $dbname
      * @param string $dbuser
      * @param string $dbpass
      * @param string $dbhost
      */
-    function __construct($dbname, $dbuser, $dbpass, $dbhost) {
+    function __construct($dbname, $dbuser, $dbpass, $dbhost)
+    {
         // Check Unix socket in MySQL host
         $socket = null;
         if (preg_match('/^(.+):(.+$)/', $dbhost, $matches)) {
@@ -41,7 +45,8 @@ class DatabaseConnection extends \PDO {
      * @param callable $callback
      * @return array|object
      */
-    public function querySelect($query, $values = [], $singleRecord = false, $callback = null) {
+    public function querySelect($query, $values = [], $singleRecord = false, $callback = null)
+    {
         $output = [];
         $stmt = $this->createStatement($query, $values);
         if ($stmt->execute()) {
@@ -63,7 +68,8 @@ class DatabaseConnection extends \PDO {
      * @param array $values
      * @return bool
      */
-    public function queryExecute($query, $values = []) {
+    public function queryExecute($query, $values = [])
+    {
         $stmt = $this->createStatement($query, $values);
         $result = $stmt->execute();
         $stmt = null;
@@ -75,7 +81,8 @@ class DatabaseConnection extends \PDO {
      * @param bool $status
      * @return bool
      */
-    public function useBufferedQuery($status) {
+    public function useBufferedQuery($status)
+    {
         return $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $status);
     }
     
@@ -85,35 +92,38 @@ class DatabaseConnection extends \PDO {
      * @param array $values
      * @return \PDOStatement
      */
-    private function createStatement(&$query, $values) {
+    private function createStatement(&$query, $values)
+    {
         // analyse binding values
         if (!empty($values)) {
             foreach ($values as $k => $v) {
-                if (is_array($v)) {
-                    $param = strpos($k, ':') === false? (':' . $k) : $k;
-                    
-                    // replace the param with a comma-separated list of params suffixed by '_number'
-                    $params = [];
-                    
-                    if (empty($v)) {
-                        // safely handle empty array
-                        $p = $param . '_0';
-                        $params[] = $p;
-                        $values[$p] = '';
-                    } else {
-                        foreach ($v as $vk => $vv) {
-                            $p = $param . '_' . $vk;
-
-                            // store the new binding value
-                            $params[] = $p;
-                            $values[$p] = $vv;
-                        }
-                    }
-                                        
-                    // replace the old param with the new param list
-                    $query = str_replace($param, implode(',', $params), $query);
-                    unset($values[$k]);
+                if (!is_array($v)) {
+                    continue;
                 }
+
+                $param = strpos($k, ':') === false? (':' . $k) : $k;
+                
+                // replace the param with a comma-separated list of params suffixed by '_number'
+                $params = [];
+                
+                if (empty($v)) {
+                    // safely handle empty array
+                    $p = $param . '_0';
+                    $params[] = $p;
+                    $values[$p] = '';
+                } else {
+                    foreach ($v as $vk => $vv) {
+                        $p = $param . '_' . $vk;
+
+                        // store the new binding value
+                        $params[] = $p;
+                        $values[$p] = $vv;
+                    }
+                }
+                                    
+                // replace the old param with the new param list
+                $query = str_replace($param, implode(',', $params), $query);
+                unset($values[$k]);
             }
         }
         
@@ -136,7 +146,8 @@ class DatabaseConnection extends \PDO {
      * @param string $param
      * @param int|bool|string $value
      */
-    private function bindStatementValue(&$stmt, $param, $value) {
+    private function bindStatementValue(&$stmt, $param, $value)
+    {
         if (strpos($param, ':') === false) {
             $param = ':' . $param;
         }
